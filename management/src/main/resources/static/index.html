@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            color: white;
+            margin: 0;
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+        .navbar button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .navbar button:hover {
+            background-color: #45a049;
+        }
+        .main-content {
+            display: flex;
+            padding: 20px;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .product-container {
+            flex-grow: 1;
+            padding-left: 20px;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .product-tile {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .product-tile:hover {
+            transform: translateY(-5px);
+        }
+        .product-tile h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Product Management</h1>
+        <div class="navbar-right">
+            <button onclick="showModal('addProductModal')">Add Product</button>
+            <button onclick="showModal('addCategoryModal')">Add Category</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <h2>Categories</h2>
+            <select id="categoryFilter" onchange="fetchProducts()">
+                <option value="all">All Products</option>
+            </select>
+        </div>
+        <div class="product-container">
+            <input type="text" id="searchBar" class="search-bar" placeholder="Search products..." oninput="searchProducts()">
+            <div id="productsContainer" class="product-grid">
+                <!-- Products will be appended here as tiles -->
+            </div>
+        </div>
+    </div>
+
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('addProductModal')">&times;</span>
+            <h2>Add Product</h2>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label for="productName">Product Name:</label>
+                    <input type="text" id="productName" name="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price:</label>
+                    <input type="number" id="price" name="price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="stock">Stock:</label>
+                    <input type="number" id="stock" name="stock" required>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">Category:</label>
+                    <select id="productCategory" name="category" required></select>
+                </div>
+                <div class="form-group">
+                    <button type="button" onclick="addProduct()">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="addCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('addCategoryModal')">&times;</span>
+            <h2>Add Category</h2>
+            <form id="addCategoryForm">
+                <div class="form-group">
+                    <label for="categoryName">Category Name:</label>
+                    <input type="text" id="categoryName" name="categoryName" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" onclick="addCategory()">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="productDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('productDetailModal')">&times;</span>
+            <h2 id="detailProductName">Product Name</h2>
+            <p id="detailProductPrice">Price: </p>
+            <p id="detailProductDescription">Description: </p>
+            <p id="detailProductStock">Stock: </p>
+            <p id="detailProductCategory">Category: </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            loadCategories();
+            fetchProducts();
+        });
+
+        function loadCategories() {
+            fetch("/api/categories")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(categories => {
+                    const categoryFilter = document.getElementById("categoryFilter");
+                    const productCategory = document.getElementById("productCategory");
+
+                    categories.forEach(category => {
+                        const option = document.createElement("option");
+                        option.value = category.id;
+                        option.text = category.categoryName;
+
+                        categoryFilter.appendChild(option);
+                        productCategory.appendChild(option.cloneNode(true));
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Failed to load categories. Please refresh the page.");
+                });
+        }
+
+        function fetchProducts() {
+            const category = document.getElementById("categoryFilter").value;
+            const url = category === "all" ? "/api/products" : `/api/products/category/${category}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(products => {
+                    const productsContainer = document.getElementById("productsContainer");
+                    productsContainer.innerHTML = '';
+
+                    products.forEach(product => {
+                        const productTile = document.createElement("div");
+                        productTile.className = "product-tile";
+                        
+                        const productName = document.createElement("h3");
+                        productName.textContent = product.name;
+                        productTile.appendChild(productName);
+
+                        const productPrice = document.createElement("p");
+                        productPrice.textContent = `Price: $${product.price}`;
+                        productTile.appendChild(productPrice);
+
+                        const productStock = document.createElement("p");
+                        productStock.textContent = `Stock: ${product.stock}`;
+                        productTile.appendChild(productStock);
+
+                        productTile.addEventListener("click", () => showProductDetails(product));
+
+                        productsContainer.appendChild(productTile);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Failed to fetch products. Please try again.");
+                });
+        }
+
+        function showProductDetails(product) {
+            document.getElementById("detailProductName").textContent = product.productName;
+            document.getElementById("detailProductPrice").textContent = `Price: $${product.price}`;
+            document.getElementById("detailProductDescription").textContent = `Description: ${product.description}`;
+            document.getElementById("detailProductStock").textContent = `Stock: ${product.stock}`;
+            document.getElementById("detailProductCategory").textContent = `Category: ${product.category.categoryName}`;
+
+            showModal('productDetailModal');
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        function addProduct() {
+            const form = document.getElementById("addProductForm");
+            const formData = new FormData(form);
+
+            const product = {
+                category: {
+                    categoryId: parseInt(formData.get("category"))
+                },
+                productName: formData.get("productName"),
+                price: parseFloat(formData.get("price")),
+                description: formData.get("description"),
+                stock: parseInt(formData.get("stock"))
+            };
+
+            fetch("/api/products/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(product)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("Product added successfully!");
+                hideModal("addProductModal");
+                fetchProducts();
+                clearForm("addProductForm");
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Failed to add product. Please try again.");
+            });
+        }
+
+        function addCategory() {
+            const form = document.getElementById("addCategoryForm");
+            const formData = new FormData(form);
+
+            const category = {
+                categoryName: formData.get("categoryName")
+            };
+
+            fetch("/api/categories/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(category)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("Category added successfully!");
+                hideModal("addCategoryModal");
+                loadCategories();
+                clearForm("addCategoryForm");
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Failed to add category. Please try again.");
+            });
+        }
+
+        function searchProducts() {
+            const searchTerm = document.getElementById("searchBar").value.toLowerCase();
+            const products = document.getElementsByClassName("product-tile");
+            
+            for (let product of products) {
+                const productName = product.getElementsByTagName("h3")[0].textContent.toLowerCase();
+                const productDescription = product.querySelector("p:nth-child(2)").textContent.toLowerCase();
+                if (productName.includes(searchTerm) || productDescription.includes(searchTerm)) {
+                    product.style.display = "";
+                } else {
+                    product.style.display = "none";
+                }
+            }
+        }
+
+        function clearForm(formId) {
+            document.getElementById(formId).reset();
+        }
+    </script>
+</body>
+</html>
