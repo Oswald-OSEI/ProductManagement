@@ -41,6 +41,7 @@ public class ProductController {
 
     @PostMapping("/add")
     public ResponseEntity<ProductModel> createProduct(@RequestBody ProductModel productModel){
+        System.out.println("the category ID is    "+productModel.getCategory().getCategoryId());
         ProductModel savedProduct = productService.save(productModel);
         return ResponseEntity.ok(savedProduct);
     }

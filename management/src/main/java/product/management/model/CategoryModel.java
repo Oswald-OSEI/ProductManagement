@@ -2,7 +2,7 @@ package product.management.model;
 import java.util.List;
 
 public class CategoryModel {
- private Long id;
+ private Long categoryId;
  private String CategoryName;   
  private List<ProductModel> products;
 
@@ -13,7 +13,7 @@ public CategoryModel(String CategoryName){
  }
 
  public CategoryModel(Long id, String CategoryName){
-   this.id = id;
+   this.categoryId = id;
    this.CategoryName = CategoryName;
 }
 
@@ -23,7 +23,7 @@ public CategoryModel(String CategoryName){
  }
 
  public void setCategoryId(Long id){
-   this.id = id;
+   this.categoryId = id;
  }
 
  public void setProducts(List<ProductModel> product){
@@ -32,7 +32,7 @@ public CategoryModel(String CategoryName){
 
 //Getters
 public Long getCategoryId(){
-   return this.id;
+   return this.categoryId;
 }
  public String getCategoryName(){
     return this.CategoryName;

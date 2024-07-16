@@ -196,7 +196,7 @@
                 </div>
                 <div class="form-group">
                     <label for="productCategory">Category:</label>
-                    <select id="productCategory" name="category" required></select>
+                    <select id="productCategory" name="categoryId" required></select>
                 </div>
                 <div class="form-group">
                     <button type="button" onclick="addProduct()">Submit</button>
@@ -252,7 +252,7 @@
 
                     categories.forEach(category => {
                         const option = document.createElement("option");
-                        option.value = category.id;
+                        option.value = category.categoryId;
                         option.text = category.categoryName;
 
                         categoryFilter.appendChild(option);
@@ -331,7 +331,7 @@
 
             const product = {
                 category: {
-                    categoryId: parseInt(formData.get("category"))
+                    categoryId: parseInt(formData.get("categoryId"))
                 },
                 productName: formData.get("productName"),
                 price: parseFloat(formData.get("price")),

@@ -11,10 +11,8 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import product.management.entity.CategoryEntity;
 import product.management.entity.ProductEntity;
-import product.management.model.CategoryModel;
 import product.management.model.ProductModel;
 import product.management.repository.ProductRepository;
-import product.management.repository.CategoryRepository;
 
  
 @Service
@@ -23,8 +21,7 @@ public class ProductService {
     @Autowired
     private final ProductRepository productRepository;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    @Autowired CategoryService categoryService;
     
     public ProductService(ProductRepository productRepository){
         this.productRepository = productRepository;
@@ -41,18 +38,12 @@ public class ProductService {
 
     @Transactional
     public ProductModel save(ProductModel productModel){
+        CategoryEntity category = categoryService.findCategoryById(productModel.getCategory().getCategoryId());
         ProductEntity productEntity = convertToProductEntity(productModel);
-        CategoryEntity savedCategory;
-        ProductEntity savedProduct;
-        // Ensure the category exists and is persisted
-        if (productEntity.getCategory() != null && productEntity.getCategory().getCategoryId() != null) {
-            Optional<CategoryEntity> optionalCategory = categoryRepository.findById(productEntity.getCategory().getCategoryId());
-            if (optionalCategory.isPresent()) {
-                savedCategory = optionalCategory.get();
-}               savedProduct = productRepository.save(productEntity);
-                }
-             return convertToProductModel(savedProduct);}
-            
+        productEntity.setCategory(category);
+        productRepository.save(productEntity);
+        return convertToProductModel(productEntity);
+    }
         
     
     public void deleteById(Long id){
@@ -65,35 +56,24 @@ public class ProductService {
     }
 
     private ProductEntity convertToProductEntity(ProductModel productModel) {
-        ProductEntity productEntity = new ProductEntity();
-        productEntity.setName(productModel.getName());
-        productEntity.setDescription(productModel.getDescription());
-        productEntity.setPrice(productModel.getPrice());
-        productEntity.setStock(productModel.getStock());
-        
-        if (productModel.getCategory() != null && productModel.getCategory().getCategoryId() != null) {
-            CategoryEntity category = new CategoryEntity();
-            category.setCategoryId(productModel.getCategory().getCategoryId());
-            productEntity.setCategory(category);
-        }
-        
+        ProductEntity productEntity = new ProductEntity(
+        categoryService.convertToEntity(productModel.getCategory()),
+        productModel.getName(),
+        productModel.getPrice(),
+        productModel.getDescription(),
+        productModel.getStock()
+        );
         return productEntity;
     }
 
     public ProductModel convertToProductModel(ProductEntity productEntity){
         ProductModel productModel = new ProductModel();
+        productModel.setId(productEntity.getId()); 
         productModel.setName(productEntity.getName());
         productModel.setDescription(productEntity.getDescription());
         productModel.setPrice(productEntity.getPrice());
         productModel.setStock(productEntity.getStock());
-        
-        if (productEntity.getCategory() != null) {
-            CategoryModel categoryModel = new CategoryModel();
-            categoryModel.setCategoryId(productEntity.getCategory().getCategoryId());
-            categoryModel.setCategoryName(productEntity.getCategory().getCategoryName());
-            productModel.setCategory(categoryModel);
-        }
-        
+        productModel.setCategory(categoryService.convertToModel(productEntity.getCategory()));
         return productModel;
     }
 }

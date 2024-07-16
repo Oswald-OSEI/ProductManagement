@@ -33,18 +33,24 @@ public class CategoryService{
         return convertToModel(category);
     }
 
+    //Find category using its id
+    public CategoryEntity findCategoryById(Long id){
+        CategoryEntity category = categoryRepository.findById(id).orElseThrow(()->new RuntimeException("Category not found")); 
+        return category;
+    }
+
     //Delete category 
     public void deleteById(Long id){
         categoryRepository.deleteById(id);
     }
 
     //Convert entity fetched from database to model parameters for frontend
-    private CategoryModel convertToModel(CategoryEntity entity) {
+    public CategoryModel convertToModel(CategoryEntity entity) {
         return new CategoryModel(entity.getCategoryId(), entity.getCategoryName());
     }
 
     //Convert model data from front end to entity parameters for the database
-    private CategoryEntity convertToEntity(CategoryModel model){
-        return new CategoryEntity(model.getCategoryName());
+    public CategoryEntity convertToEntity(CategoryModel model){
+        return new CategoryEntity(model.getCategoryId(),model.getCategoryName());
     }
 }
