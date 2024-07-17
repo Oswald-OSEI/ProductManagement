@@ -1,17 +1,31 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --background-color: #f0f8ff;
+    --text-color: #333;
+    --light-gray: #f4f4f4;
+    --dark-gray: #777;
+    --white: #ffffff;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f8ff;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
 }
 
 .navbar {
-    background-color: #4a90e2;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--white);
     padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: var(--box-shadow);
 }
 
 .search-bar {
@@ -21,37 +35,58 @@ body {
 
 .search-bar input {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 25px;
     font-size: 1rem;
+    transition: all 0.3s ease;
 }
 
 .search-bar input:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.5);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
 }
 
 .add-product-btn {
-    background-color: #2ecc71;
-    color: white;
+    background-color: var(--secondary-color);
+    color: var(--white);
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+.add-product-btn:hover {
+    background-color: #27ae60;
+}
+
+.add-icon{
+    display: inline;
+    margin-left: 100px;
+    
 }
 
 .main-content {
     display: flex;
-    margin-top: 1rem;
+    margin: 2rem auto;
+    max-width: 1200px;
+    gap: 2rem;
 }
 
 .category-filter {
-    width: 200px;
-    background-color: #ffffff;
-    padding: 1rem;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 250px;
+    background-color: var(--white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+
+.category-filter h3 {
+    margin-top: 0;
+    color: var(--primary-color);
 }
 
 .category-list {
@@ -63,7 +98,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.category-item:hover {
+    background-color: var(--light-gray);
 }
 
 .category-name {
@@ -76,28 +118,35 @@ body {
 
 .edit-icon, .delete-icon {
     cursor: pointer;
-    margin-left: 0.5rem;
+    margin-left: 0.75rem;
+    color: var(--dark-gray);
+    transition: color 0.3s ease;
+}
+
+.edit-icon:hover, .delete-icon:hover {
+    color: var(--primary-color);
 }
 
 .product-display {
     flex-grow: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
     padding: 1rem;
 }
 
 .product-tile {
-    background-color: white;
-    border-radius: 4px;
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
 }
 
 .product-tile:hover {
-    transform: scale(1.05);
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .modal {
@@ -109,46 +158,224 @@ body {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
+    background-color: var(--white);
+    margin: 10% auto;
+    padding: 2rem;
     border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 4px;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    animation: slideDown 0.3s;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .close {
-    color: #aaa;
+    color: var(--dark-gray);
     float: right;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
+    transition: color 0.3s ease;
 }
 
 .close:hover,
 .close:focus {
-    color: black;
+    color: var(--text-color);
     text-decoration: none;
-    cursor: pointer;
 }
 
 .pagination {
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
+    margin-top: 2rem;
 }
 
 .pagination button {
-    margin: 0 0.25rem;
-    padding: 0.5rem 1rem;
-    background-color: #4a90e2;
-    color: white;
+    margin: 0 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--primary-color);
+    color: var(--white);
     border: none;
-    border-radius: 4px;
+    border-radius: 25px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pagination button:hover {
+    background-color: #2980b9;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+form input[type="text"],
+form input[type="number"],
+form textarea,
+form select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+form input[type="text"]:focus,
+form input[type="number"]:focus,
+form textarea:focus,
+form select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+form label {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    align-self: flex-start;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+/* Additional utility classes */
+.text-center {
+    text-align: center;
+}
+
+.mt-1 {
+    margin-top: 1rem;
+}
+
+.mb-1 {
+    margin-bottom: 1rem;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.category-header h3 {
+    margin: 0;
+}
+
+.add-icon {
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+.add-icon:hover {
+    color: var(--secondary-color);
+}
+
+#addCategoryModal .modal-content {
+    max-width: 400px;
+}
+
+#addCategoryForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#addCategoryForm input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+#addCategoryForm input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+#addCategoryForm button {
+    align-self: flex-start;
+    background-color: var(--secondary-color);
+}
+
+#addCategoryForm button:hover {
+    background-color: #27ae60;
+}
+.pagination-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pagination button {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--primary-color);
+    background-color: var(--white);
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.pagination button.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-indicator {
+    margin-left: 1rem;
+    font-style: italic;
+    color: var(--dark-gray);
 }

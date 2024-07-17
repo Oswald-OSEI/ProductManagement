@@ -16,7 +16,8 @@
 
     <div class="main-content">
         <div class="category-filter">
-            <h3>Categories</h3>
+            <h3 style="display: inline;">Categories</h3>
+            <span class="add-icon" id="showAddCategoryBtn" title="Add Category">➕</span>
             <ul class="category-list">
                 <!-- Categories will be dynamically added here -->
             </ul>
@@ -73,6 +74,18 @@
             <button id="updateCategoryBtn">Update Category</button>
         </div>
     </div>
+
+    <div id="addCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Category</h2>
+            <form id="addCategoryForm">
+                <input type="text" id="newCategoryName" placeholder="Category Name" required>
+                <button type="submit" id="addNewCategoryBtn">Add Category</button>
+            </form>
+        </div>
+    </div>
+    
 
     <script src="/js/script.js"></script>
 </body>

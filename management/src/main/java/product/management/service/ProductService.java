@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,19 +29,15 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<ProductModel> findAll(int page, int size){
-        Pageable pageable = PageRequest.of(page, size);
-        return productRepository.findAll(pageable)
-                .getContent()
-                .stream()
-                .map(this::convertToProductModel)
-                .collect(Collectors.toList());
+    public Page<ProductModel> findAll(Pageable pageable) {
+        Page<ProductEntity> productPage = productRepository.findAll(pageable);
+        return productPage.map(this::convertToProductModel);
     }
 
     @Transactional
     public ProductModel save(ProductModel productModel){
         CategoryEntity category = categoryService.findCategoryById(productModel.getCategory().getCategoryId());
-        ProductEntity productEntity = convertToProductEntity(productModel);
+        ProductEntity productEntity = convertToAddProductEntity(productModel);
         productEntity.setCategory(category);
         productRepository.save(productEntity);
         return convertToProductModel(productEntity);
@@ -79,6 +76,17 @@ public class ProductService {
                 productModel.getStock()
         );
         productEntity.setId(productModel.getId());
+        return productEntity;
+    }
+    private ProductEntity convertToAddProductEntity(ProductModel productModel) {
+        ProductEntity productEntity = new ProductEntity(
+                categoryService.convertToEntity(productModel.getCategory()),
+                productModel.getName(),
+                productModel.getPrice(),
+                productModel.getDescription(),
+                productModel.getStock()
+        );
+        
         return productEntity;
     }
 

@@ -1,8 +1,9 @@
 // Global variables
-let categories = [];
 let products = [];
-let currentPage = 1;
-const productsPerPage = 15;
+let categories = [];
+let currentPage = 0;
+let totalPages = 0;
+let pageSize = 6;
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('applyChangesBtn').addEventListener('click', editProduct);
     document.getElementById('addNewProductBtn').addEventListener('click', addProduct);
     document.getElementById('searchInput').addEventListener('input', handleSearch);
+    document.getElementById('showAddCategoryBtn').addEventListener('click', showAddCategoryForm);
+    document.getElementById('addNewCategoryBtn').addEventListener('click', addCategory);
 
     // Close modals when clicking on the close button or outside the modal
     document.querySelectorAll('.close, .modal').forEach(element => {
@@ -54,14 +57,16 @@ function renderCategories() {
 }
 
 // Function to fetch products from the backend
-async function fetchProducts(page = 1) {
+async function fetchProducts(page = 0) {
     try {
-        const response = await fetch(`/api/products?page=${page - 1}&size=${productsPerPage}`);
+        const response = await fetch(`/api/products?page=${page}&size=${pageSize}`);
+        if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
-        products = data;
+        products = data.content;
+        currentPage = data.number;
+        totalPages = data.totalPages;
         renderProducts();
         renderPagination();
-        document.getElementById('searchInput').value = '';
     } catch (error) {
         console.error('Error fetching products:', error);
     }
@@ -86,18 +91,28 @@ function renderProducts() {
 
 // Function to render pagination
 function renderPagination() {
-    const paginationDiv = document.querySelector('.pagination');
-    paginationDiv.innerHTML = '';
-    const totalPages = Math.ceil(products.length / productsPerPage);
-    for (let i = 1; i <= totalPages; i++) {
-        const button = document.createElement('button');
-        button.textContent = i;
-        button.addEventListener('click', () => {
-            currentPage = i;
-            fetchProducts(currentPage);
-        });
-        paginationDiv.appendChild(button);
+    const paginationElement = document.querySelector('.pagination');
+    paginationElement.innerHTML = '';
+
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Previous';
+    prevButton.disabled = currentPage === 0;
+    prevButton.addEventListener('click', () => fetchProducts(currentPage - 1));
+    paginationElement.appendChild(prevButton);
+
+    for (let i = 0; i < totalPages; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = i + 1;
+        pageButton.classList.toggle('active', i === currentPage);
+        pageButton.addEventListener('click', () => fetchProducts(i));
+        paginationElement.appendChild(pageButton);
     }
+
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next';
+    nextButton.disabled = currentPage === totalPages - 1;
+    nextButton.addEventListener('click', () => fetchProducts(currentPage + 1));
+    paginationElement.appendChild(nextButton);
 }
 
 // Function to show product details
@@ -201,10 +216,18 @@ function showAddProductForm() {
 // Function to add a new product
 async function addProduct() {
     const name = document.getElementById('newProductName').value;
-    const price = document.getElementById('newProductPrice').value;
-    const stock = document.getElementById('newProductStock').value;
+    const price = parseFloat(document.getElementById('newProductPrice').value);
+    const stock = parseInt(document.getElementById('newProductStock').value);
     const description = document.getElementById('newProductDescription').value;
-    const categoryId = document.getElementById('newProductCategory').value;
+    const categoryId = parseInt(document.getElementById('newProductCategory').value);
+
+    const productModel = {
+        name,
+        price,
+        stock,
+        description,
+        category: { categoryId }
+    };
 
     try {
         const response = await fetch('/api/products/add', {
@@ -212,20 +235,22 @@ async function addProduct() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                name,
-                price,
-                stock,
-                description,
-                category: { categoryId }
-            }),
+            body: JSON.stringify(productModel),
         });
+        
         if (response.ok) {
+            const savedProduct = await response.json();
             document.getElementById('addProductModal').style.display = 'none';
             fetchProducts(currentPage);
+            console.log('Product added successfully:', savedProduct);
+        } else {
+            const errorData = await response.json();
+            console.error('Error adding product:', errorData);
+            displayErrorMessage(errorData.message || "Error adding product.");
         }
     } catch (error) {
         console.error('Error adding product:', error);
+        displayErrorMessage("An error occurred while adding the product.");
     }
 }
 
@@ -260,17 +285,79 @@ function editCategory(id) {
 }
 
 // Function to delete a category
-async function deleteCategory(id) {
+async function deleteCategory(categoryId) {
     try {
-        const response = await fetch(`/api/categories/deleteCategory/${id}`, {
+        const response = await fetch(`/api/categories/deleteCategory/${categoryId}`, {
             method: 'DELETE',
         });
+        
         if (response.ok) {
             fetchCategories();
+        } else {
+            const errorData = await response.json();
+            if (response.status === 400 && errorData.message.includes('associated')) {
+                displayErrorMessage("This category cannot be deleted because it's associated with products.");
+            } else {
+                displayErrorMessage("This category cannot be deleted because it's associated with products.");
+            }
         }
     } catch (error) {
         console.error('Error deleting category:', error);
+        displayErrorMessage("This category cannot be deleted because it's associated with products.");
     }
+}
+
+function displayErrorMessage(message) {
+    // Create error message container if it doesn't exist
+    let errorContainer = document.getElementById('error-message-container');
+    if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.id = 'error-message-container';
+        document.body.appendChild(errorContainer);
+    }
+
+    // Create and style the error message element
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.textContent = message;
+
+    // Add the error message to the container
+    errorContainer.appendChild(errorElement);
+
+    // Style the error message
+    Object.assign(errorElement.style, {
+        backgroundColor: '#ffebee',
+        color: '#d32f2f',
+        padding: '10px 15px',
+        margin: '10px 0',
+        borderRadius: '4px',
+        border: '1px solid #ef9a9a',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '14px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    });
+
+    // Add a close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '×';
+    closeButton.style.background = 'none';
+    closeButton.style.border = 'none';
+    closeButton.style.color = '#d32f2f';
+    closeButton.style.fontSize = '20px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.onclick = () => errorElement.remove();
+
+    errorElement.appendChild(closeButton);
+
+    // Automatically remove the error message after 5 seconds
+    setTimeout(() => {
+        errorElement.style.opacity = '0';
+        errorElement.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => errorElement.remove(), 500);
+    }, 5000);
 }
 
 // Function to filter products by category
@@ -306,10 +393,61 @@ function renderFilteredProducts(filteredProducts) {
 
 // Function to handle search
 function handleSearch() {
-    const searchTerm = document.getElementById('searchInput').value;
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filteredProducts = products.filter(product => 
-        product.name.includes(searchTerm)
+        product.name.toLowerCase().includes(searchTerm)
         
     );
     renderFilteredProducts(filteredProducts);
+}
+
+// Function to show add category form
+function showAddCategoryForm() {
+    const modal = document.getElementById('addCategoryModal');
+    modal.style.display = 'block';
+}
+
+// Function to add a new category
+async function addCategory(event) {
+    // Prevent the default form submission
+    if (event) event.preventDefault();
+
+    // Get the value from the input field
+    const categoryName = document.getElementById('newCategoryName').value;
+
+    if (!categoryName.trim()) {
+        displayErrorMessage("Category name cannot be empty.");
+        return;
+    }
+
+    // Create a CategoryModel object
+    const categoryModel = {
+        categoryName: categoryName
+        // Add other properties of CategoryModel if needed, e.g.:
+        // categoryId: null  // Assuming the ID is generated by the backend
+    };
+
+    try {
+        const response = await fetch('/api/categories/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(categoryModel),
+        });
+       
+        if (response.ok) {
+            const savedCategory = await response.json();
+            document.getElementById('addCategoryModal').style.display = 'none';
+            document.getElementById('newCategoryName').value = '';
+            fetchCategories();
+            console.log('Category added successfully:', savedCategory);
+        } else {
+            const errorData = await response.json();
+            displayErrorMessage(errorData.message || "Error adding category.");
+        }
+    } catch (error) {
+        console.error('Error adding category:', error);
+        displayErrorMessage("An error occurred while adding the category.");
+    }
 }

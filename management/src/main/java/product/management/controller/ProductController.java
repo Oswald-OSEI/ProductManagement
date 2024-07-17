@@ -1,6 +1,7 @@
 package product.management.controller;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
 
-import product.management.model.CategoryModel;
+
 import product.management.model.ProductModel;
 import product.management.service.ProductService;
 
@@ -28,12 +30,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductModel>> getAllProducts(
+    public ResponseEntity<Page<ProductModel>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ){List<ProductModel> AllProducts = productService.findAll(page, size);
-        return ResponseEntity.ok(AllProducts);
-
+            @RequestParam(defaultValue = "6") int size
+    ) {
+        Page<ProductModel> productPage = productService.findAll(PageRequest.of(page, size));
+        return ResponseEntity.ok(productPage);
     }
 
     @GetMapping("/{id}")
