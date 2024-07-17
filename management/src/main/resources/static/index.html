@@ -3,643 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Management</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        .navbar {
-            background-color: #333;
-            overflow: hidden;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar h1 {
-            color: white;
-            margin: 0;
-        }
-        .navbar-right {
-            display: flex;
-            align-items: center;
-        }
-        .navbar button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            margin-left: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .navbar button:hover {
-            background-color: #45a049;
-        }
-        .main-content {
-            display: flex;
-            padding: 20px;
-        }
-        .sidebar {
-            width: 250px;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .product-container {
-            flex-grow: 1;
-            padding-left: 20px;
-        }
-        .search-bar {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        .product-tile {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-            cursor: pointer;
-        }
-        .product-tile:hover {
-            transform: translateY(-5px);
-        }
-        .product-tile h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            animation: fadeIn 0.3s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s;
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: #000;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form-group button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .form-group button:hover {
-            background-color: #45a049;
-        }
-        .manage-categories-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .manage-categories-container h2 {
-            margin: 0;
-        }
-        .manage-categories-container a {
-            font-size: 24px;
-            text-decoration: none;
-            color: #4CAF50;
-            cursor: pointer;
-        }
-        .manage-categories-container a:hover {
-            color: #45a049;
-        }
-        .manage-categories-container a::after {
-            content: 'add category';
-            visibility: hidden;
-            opacity: 0;
-            display: block;
-            transition: opacity 0.3s;
-        }
-        .manage-categories-container a:hover::after {
-            visibility: visible;
-            opacity: 1;
-            font-size: 14px;
-            color: #333;
-            margin-top: 5px;
-        }
-        .category-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        .category-item button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-left: 5px;
-        }
-        .category-item button:hover {
-            background-color: #45a049;
-        }
-
-    .plus-icon {
-        position: relative;
-        display: inline-block;
-        cursor: pointer;
-    }
-
-    .plus-icon .tooltiptext {
-        visibility: hidden;
-        width: 120px;
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        border-radius: 5px;
-        padding: 5px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        margin-left: -60px;
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-
-    .plus-icon:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-    }
-
-    .category-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .category-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .category-actions img {
-        cursor: pointer;
-    }
-    </style>
+    <title>Product Management System</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
-
 <body>
-<div class="navbar">
-    <h1>Product Management</h1>
-    <div class="navbar-right">
-        <button onclick="showModal('addProductModal')">Add Product</button>
-        <button onclick="showModal('manageCategoriesModal')">Manage Categories</button>
-    </div>
-</div>
+    <nav class="navbar">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search products...">
+        </div>
+        <button class="add-product-btn">Add Product</button>
+    </nav>
 
-<div class="main-content">
-    <div class="sidebar">
-        <h2>Categories</h2>
-        <select id="categoryFilter" onchange="fetchProducts()">
-            <option value="all">All Products</option>
-        </select>
-    </div>
-    <div class="product-container">
-        <input type="text" id="searchBar" class="search-bar" placeholder="Search products..." oninput="searchProducts()">
-        <div id="productsContainer" class="product-grid">
-            <!-- Products will be appended here as tiles -->
+    <div class="main-content">
+        <div class="category-filter">
+            <h3>Categories</h3>
+            <ul class="category-list">
+                <!-- Categories will be dynamically added here -->
+            </ul>
+        </div>
+        <div class="product-display">
+            <!-- Products will be dynamically added here -->
         </div>
     </div>
-</div>
 
-<div id="addProductModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('addProductModal')">&times;</span>
-        <h2>Add Product</h2>
-        <form id="addProductForm">
-            <div class="form-group">
-                <label for="productName">Product Name:</label>
-                <input type="text" id="productName" name="productName" required>
-            </div>
-            <div class="form-group">
-                <label for="price">Price:</label>
-                <input type="number" id="price" name="price" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea id="description" name="description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="stock">Stock:</label>
-                <input type="number" id="stock" name="stock" required>
-            </div>
-            <div class="form-group">
-                <label for="productCategory">Category:</label>
-                <select id="productCategory" name="categoryId" required></select>
-            </div>
-            <div class="form-group">
-                <button type="button" onclick="addProduct()">Submit</button>
-            </div>
-        </form>
+    <div class="pagination">
+        <!-- Pagination buttons will be dynamically added here -->
     </div>
-</div>
 
-<div id="manageCategoriesModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('manageCategoriesModal')">&times;</span>
-        <div class="manage-categories-container">
-            <h2>All Categories</h2>
-            <button class="plus-icon" onclick="showModal('addCategoryModal')" title="Add Category">
-                <span class="tooltiptext">Add Category</span>
-                <img src="plus-icon.png" alt="Add Category" />
-            </button>
-        </div>
-        <div id="categoriesList">
-            <!-- Categories will be appended here -->
+    <!-- Modals -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Product Details</h2>
+            <div id="productDetails"></div>
+            <button id="editProductBtn">Edit</button>
+            <button id="deleteProductBtn">Delete</button>
         </div>
     </div>
-</div>
 
-<div id="addCategoryModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('addCategoryModal')">&times;</span>
-        <h2>Add Category</h2>
-        <form id="addCategoryForm">
-            <div class="form-group">
-                <label for="categoryName">Category Name:</label>
-                <input type="text" id="categoryName" name="categoryName" required>
-            </div>
-            <div class="form-group">
-                <button type="button" onclick="addCategory()">Submit</button>
-            </div>
-        </form>
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="editProductForm">
+                <!-- Form fields will be dynamically added here -->
+            </form>
+            <button id="applyChangesBtn">Apply Changes</button>
+        </div>
     </div>
-</div>
 
-<div id="productDetailModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('productDetailModal')">&times;</span>
-        <h2 id="detailProductName">Product Name</h2>
-        <p id="detailProductPrice">Price: </p>
-        <p id="detailProductDescription">Description: </p>
-        <p id="detailProductStock">Stock: </p>
-        <p id="detailProductCategory">Category: </p>
-
-        <!-- Edit and Delete buttons -->
-        <button class="edit-button" onclick="openEditModal('product.id')">Edit Detail</button>
-        <button class="delete-button" onclick="deleteProduct('product.id')">Delete</button>
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Product</h2>
+            <form id="addProductForm">
+                <!-- Form fields will be dynamically added here -->
+            </form>
+            <button id="addNewProductBtn">Add Product</button>
+        </div>
     </div>
-</div>
 
-
-<div id="editProductModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('editProductModal')">&times;</span>
-        <h2>Edit Product</h2>
-        <form id="editProductForm">
-            <label for="editProductName">Product Name</label>
-            <input type="text" id="editProductName" name="productName">
-
-            <label for="editProductPrice">Price</label>
-            <input type="text" id="editProductPrice" name="price">
-
-            <label for="editProductDescription">Description</label>
-            <textarea id="editProductDescription" name="description"></textarea>
-
-            <label for="editProductStock">Stock</label>
-            <input type="text" id="editProductStock" name="stock">
-
-            <label for="editProductCategory">Category</label>
-            <input type="text" id="editProductCategory" name="category">
-
-            <button type="button" onclick="saveEditedProduct()">Save Changes</button>
-        </form>
+    <div id="editCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Category</h2>
+            <form id="editCategoryForm">
+                <input type="text" id="editCategoryName" required>
+            </form>
+            <button id="updateCategoryBtn">Update Category</button>
+        </div>
     </div>
-</div>
 
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        loadCategories();
-        fetchProducts();
-    });
-
-    function loadCategories() {
-    fetch("/api/categories")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(categories => {
-            const categoriesList = document.getElementById("categoriesList");
-            categoriesList.innerHTML = ''; // Clear previous content
-
-            categories.forEach(category => {
-                const categoryItem = document.createElement("div");
-                categoryItem.className = "category-item";
-                categoryItem.innerHTML = `
-                    <span>${category.categoryName}</span>
-                    <div class="category-actions">
-                        <button class="edit-button" onclick="editCategory(${category.categoryId})">
-                            <img src="edit-icon.png" alt="Edit" />
-                        </button>
-                        <button class="delete-button" onclick="deleteCategory(${category.categoryId})">
-                            <img src="delete-icon.png" alt="Delete" />
-                        </button>
-                    </div>
-                `;
-                categoriesList.appendChild(categoryItem);
-            });
-
-            // Update dropdowns if they exist
-            const categoryFilter = document.getElementById("categoryFilter");
-            const productCategory = document.getElementById("productCategory");
-
-            if (categoryFilter && productCategory) {
-                categoryFilter.innerHTML = ''; // Clear previous content
-                productCategory.innerHTML = ''; // Clear previous content
-
-                categories.forEach(category => {
-                    const option = document.createElement("option");
-                    option.value = category.categoryId;
-                    option.text = category.categoryName;
-
-                    categoryFilter.appendChild(option);
-                    productCategory.appendChild(option.cloneNode(true));
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("Failed to load categories. Please refresh the page.");
-        });
-}
-
-
-    function fetchProducts() {
-        const category = document.getElementById("categoryFilter").value;
-        const url = category === "all" ? "/api/products" : `/api/products/category/${categoryId}`;
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(products => {
-                const productsContainer = document.getElementById("productsContainer");
-                productsContainer.innerHTML = '';
-
-                products.forEach(product => {
-                    const productTile = document.createElement("div");
-                    productTile.className = "product-tile";
-
-                    const productName = document.createElement("h3");
-                    productName.textContent = product.name;
-                    productTile.appendChild(productName);
-
-                    const productPrice = document.createElement("p");
-                    productPrice.textContent = `Price: $${product.price}`;
-                    productTile.appendChild(productPrice);
-
-                    const productStock = document.createElement("p");
-                    productStock.textContent = `Stock: ${product.stock}`;
-                    productTile.appendChild(productStock);
-
-                    productTile.addEventListener("click", () => showProductDetails(product));
-
-                    productsContainer.appendChild(productTile);
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Failed to fetch products. Please try again.");
-            });
-    }
-
-    function showProductDetails(product) {
-        document.getElementById("detailProductName").textContent = product.productName;
-        document.getElementById("detailProductPrice").textContent = `Price: $${product.price}`;
-        document.getElementById("detailProductDescription").textContent = `Description: ${product.description}`;
-        document.getElementById("detailProductStock").textContent = `Stock: ${product.stock}`;
-        document.getElementById("detailProductCategory").textContent = `Category: ${product.category.categoryName}`;
-
-        showModal('productDetailModal');
-    }
-
-    function showModal(modalId) {
-        document.getElementById(modalId).style.display = "block";
-    }
-
-    function hideModal(modalId) {
-        document.getElementById(modalId).style.display = "none";
-    }
-
-    function addProduct() {
-        const form = document.getElementById("addProductForm");
-        const formData = new FormData(form);
-
-        const product = {
-            category: {
-                categoryId: parseInt(formData.get("categoryId"))
-            },
-            name: formData.get("productName"),
-            price: parseFloat(formData.get("price")),
-            description: formData.get("description"),
-            stock: parseInt(formData.get("stock"))
-        };
-
-        fetch("/api/products/add", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(product)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert("Product added successfully!");
-            hideModal("addProductModal");
-            fetchProducts();
-            clearForm("addProductForm");
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("Failed to add product. Please try again.");
-        });
-    }
-
-    function addCategory() {
-        const form = document.getElementById("addCategoryForm");
-        const formData = new FormData(form);
-
-        const category = {
-            categoryName: formData.get("categoryName")
-        };
-
-        fetch("/api/categories/add", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(category)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert("Category added successfully!");
-            hideModal("addCategoryModal");
-            loadCategories();
-            clearForm("addCategoryForm");
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("Failed to add category. Please try again.");
-        });
-    }
-
-    function searchProducts() {
-        const searchTerm = document.getElementById("searchBar").value.toLowerCase();
-        const products = document.getElementsByClassName("product-tile");
-
-        for (let product of products) {
-            const productName = product.getElementsByTagName("h3")[0].textContent.toLowerCase();
-            const productDescription = product.querySelector("p:nth-child(2)").textContent.toLowerCase();
-            if (productName.includes(searchTerm) || productDescription.includes(searchTerm)) {
-                product.style.display = "";
-            } else {
-                product.style.display = "none";
-            }
-        }
-    }
-    function deleteCategory(categoryId) {
-        if (confirm("Are you sure you want to delete this category?")) {
-            fetch(`/api/categories/deleteCategory/${categoryId}`, {
-                method: "DELETE",
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    loadCategories();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("Failed to delete category. Please try again.");
-                });
-        }
-    }
-
-    function editCategory(categoryId) {
-        fetch(`/api/categories/${categoryId}`)
-            .then(response => response.json())
-            .then(category => {
-                document.getElementById("categoryName").value = category.categoryName;
-                document.getElementById("addCategoryForm").dataset.categoryId = categoryId;
-                showModal('addCategoryModal');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Failed to load category details. Please try again.");
-            });
-    }
-
-    function clearForm(formId) {
-        document.getElementById(formId).reset();
-    }
-
-    function openEditModal(productId) {
-    fetch(`/api/products/${productId}`)
-        .then(response =>  response.json())
-        .then(product => {
-            // Populate edit modal fields with product data
-            document.getElementById("editProductName").value = product.productName;
-            document.getElementById("editProductPrice").value = product.price;
-            document.getElementById("editProductDescription").value = product.description;
-            document.getElementById("editProductStock").value = product.stock;
-            document.getElementById("editProductCategory").value = product.category;
-            // Show the edit modal
-            showModal('editProductModal');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("Failed to load product details. Please try again.");
-        });
-}
-    // Function to delete product (you need to implement this)
-    function deleteProduct(productId) {
-    // Implement logic to delete the product (e.g., AJAX request)
-}
-
-</script>
+    <script src="/js/script.js"></script>
 </body>
 </html>

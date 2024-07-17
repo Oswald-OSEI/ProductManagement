@@ -39,6 +39,14 @@ public class CategoryService{
         return category;
     }
 
+    //Edit Category
+    public CategoryModel edit(CategoryModel categoryModel){
+        CategoryEntity categoryEntity = findCategoryById(categoryModel.getCategoryId());
+        categoryEntity.setCategoryName(categoryModel.getCategoryName());
+        categoryEntity = categoryRepository.save(categoryEntity);
+        return convertToModel(categoryEntity);
+    }
+
     //Delete category
     public void deleteById(Long id){
         categoryRepository.deleteById(id);

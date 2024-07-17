@@ -6,11 +6,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import product.management.model.CategoryModel;
 import product.management.model.ProductModel;
 import product.management.service.ProductService;
 
@@ -43,6 +45,12 @@ public class ProductController {
     public ResponseEntity<ProductModel> createProduct(@RequestBody ProductModel productModel){
         System.out.println("the category ID is    "+productModel.getCategory().getCategoryId());
         ProductModel savedProduct = productService.save(productModel);
+        return ResponseEntity.ok(savedProduct);
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<ProductModel> editProduct(@RequestBody ProductModel productModel){
+        ProductModel savedProduct = productService.edit(productModel);
         return ResponseEntity.ok(savedProduct);
     }
 

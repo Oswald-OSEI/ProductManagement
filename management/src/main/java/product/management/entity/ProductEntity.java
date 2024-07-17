@@ -45,6 +45,10 @@ public class ProductEntity {
     public void setCategory(CategoryEntity category){
         this.category=category;
     }
+    
+    public void setId(Long id){
+        this.id = id;
+    }
 
     public void setName(String name){
         this.productName=name;

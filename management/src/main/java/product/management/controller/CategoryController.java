@@ -35,6 +35,18 @@ public class CategoryController{
         return ResponseEntity.ok(savedCategory);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryModel> getCategory(@PathVariable Long id){
+        CategoryModel editCategory = categoryService.convertToModel(categoryService.findCategoryById(id));
+        return ResponseEntity.ok(editCategory);
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<CategoryModel> editCategory(@RequestBody CategoryModel categoryModel){
+        CategoryModel savedCategory = categoryService.edit(categoryModel);
+        return ResponseEntity.ok(savedCategory);
+    }
+
     @DeleteMapping("/deleteCategory/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
         categoryService.deleteById(id);

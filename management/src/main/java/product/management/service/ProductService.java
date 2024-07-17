@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import product.management.entity.CategoryEntity;
 import product.management.entity.ProductEntity;
+import product.management.model.CategoryModel;
 import product.management.model.ProductModel;
 import product.management.repository.ProductRepository;
 
@@ -45,6 +46,20 @@ public class ProductService {
         return convertToProductModel(productEntity);
     }
 
+    //Edit Product
+    public ProductModel edit(ProductModel productModel){
+        System.out.println(productModel.getId());
+        ProductEntity productEntity = convertToProductEntity(findById(productModel.getId()));
+        productEntity.setName(productModel.getName());
+        System.out.println(productEntity.getId());
+        productEntity.setPrice(productModel.getPrice());
+        productEntity.setDescription(productModel.getDescription());
+        productEntity.setStock(productModel.getStock());
+        productEntity.setCategory(categoryService.convertToEntity(productModel.getCategory()));
+        productEntity = productRepository.save(productEntity);
+        return convertToProductModel(productEntity);
+    }
+
 
     public void deleteById(Long id){
         productRepository.deleteById(id);
@@ -63,6 +78,7 @@ public class ProductService {
                 productModel.getDescription(),
                 productModel.getStock()
         );
+        productEntity.setId(productModel.getId());
         return productEntity;
     }
 
